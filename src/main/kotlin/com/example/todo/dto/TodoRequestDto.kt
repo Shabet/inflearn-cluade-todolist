@@ -1,6 +1,7 @@
 package com.example.todo.dto
 
 import com.example.todo.entity.Todo
+import com.example.user.entity.User
 import jakarta.validation.constraints.NotBlank
 
 data class TodoCreateRequestDto(
@@ -8,11 +9,12 @@ data class TodoCreateRequestDto(
     val title: String,
     val description: String? = null
 ) {
-    fun toEntity(): Todo {
+    fun toEntity(user: User): Todo {
         return Todo(
             title = title.trim(),
             description = description?.trim(),
-            isDone = false
+            isDone = false,
+            user = user
         )
     }
 }

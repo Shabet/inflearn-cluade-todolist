@@ -3,7 +3,7 @@ package com.example.todo.service
 import com.example.todo.dto.*
 import com.example.todo.entity.Todo
 import com.example.todo.repository.TodoRepository
-import org.springframework.data.repository.findByIdOrNull
+import com.example.user.entity.User
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -17,51 +17,51 @@ class TodoService(
      * 새로운 Todo 생성
      */
     @Transactional
-    fun createTodo(requestDto: TodoCreateRequestDto): TodoResponseDto {
-        val todo = requestDto.toEntity()
+    fun createTodo(requestDto: TodoCreateRequestDto, user: User): TodoResponseDto {
+        val todo = requestDto.toEntity(user)
         val savedTodo = todoRepository.save(todo)
         return TodoResponseDto.from(savedTodo)
     }
 
     /**
-     * 모든 Todo 조회
+     * 사용자의 모든 Todo 조회
      */
-    fun getAllTodos(): TodoListResponseDto {
-        val todos = todoRepository.findAll()
+    fun getAllTodos(user: User): TodoListResponseDto {
+        val todos = todoRepository.findByUser(user)
         return TodoListResponseDto.from(todos)
     }
 
     /**
-     * ID로 Todo 단건 조회
+     * ID로 사용자의 Todo 단건 조회
      */
-    fun getTodoById(id: Long): TodoResponseDto {
-        val todo = todoRepository.findByIdOrNull(id)
+    fun getTodoById(id: Long, user: User): TodoResponseDto {
+        val todo = todoRepository.findByIdAndUser(id, user)
             ?: throw NoSuchElementException("ID가 $id 인 Todo를 찾을 수 없습니다.")
         return TodoResponseDto.from(todo)
     }
 
     /**
-     * 완료 상태별 Todo 조회
+     * 완료 상태별 사용자의 Todo 조회
      */
-    fun getTodosByStatus(isDone: Boolean): TodoListResponseDto {
-        val todos = todoRepository.findByIsDone(isDone)
+    fun getTodosByStatus(isDone: Boolean, user: User): TodoListResponseDto {
+        val todos = todoRepository.findByUserAndIsDone(user, isDone)
         return TodoListResponseDto.from(todos)
     }
 
     /**
-     * 제목으로 Todo 검색
+     * 제목으로 사용자의 Todo 검색
      */
-    fun searchTodosByTitle(title: String): TodoListResponseDto {
-        val todos = todoRepository.findByTitleContainingIgnoreCase(title)
+    fun searchTodosByTitle(title: String, user: User): TodoListResponseDto {
+        val todos = todoRepository.findByUserAndTitleContainingIgnoreCase(user, title)
         return TodoListResponseDto.from(todos)
     }
 
     /**
-     * Todo 수정
+     * 사용자의 Todo 수정
      */
     @Transactional
-    fun updateTodo(id: Long, requestDto: TodoUpdateRequestDto): TodoResponseDto {
-        val todo = todoRepository.findByIdOrNull(id)
+    fun updateTodo(id: Long, requestDto: TodoUpdateRequestDto, user: User): TodoResponseDto {
+        val todo = todoRepository.findByIdAndUser(id, user)
             ?: throw NoSuchElementException("ID가 $id 인 Todo를 찾을 수 없습니다.")
 
         // 요청된 필드만 업데이트 (null이 아닌 경우에만)
@@ -78,21 +78,22 @@ class TodoService(
     }
 
     /**
-     * Todo 삭제
+     * 사용자의 Todo 삭제
      */
     @Transactional
-    fun deleteTodo(id: Long) {
-        val todo = todoRepository.findByIdOrNull(id)
+    fun deleteTodo(id: Long, user: User) {
+        val todo = todoRepository.findByIdAndUser(id, user)
             ?: throw NoSuchElementException("ID가 $id 인 Todo를 찾을 수 없습니다.")
         
         todoRepository.delete(todo)
     }
 
     /**
-     * 모든 Todo 삭제
+     * 사용자의 모든 Todo 삭제
      */
     @Transactional
-    fun deleteAllTodos() {
-        todoRepository.deleteAll()
+    fun deleteAllTodos(user: User) {
+        val todos = todoRepository.findByUser(user)
+        todoRepository.deleteAll(todos)
     }
 }
