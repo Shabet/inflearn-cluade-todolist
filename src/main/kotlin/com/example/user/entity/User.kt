@@ -1,30 +1,25 @@
-package com.example.todo.entity
+package com.example.user.entity
 
-import com.example.user.entity.User
 import jakarta.persistence.*
 import org.hibernate.annotations.CreationTimestamp
 import org.hibernate.annotations.UpdateTimestamp
 import java.time.LocalDateTime
 
 @Entity
-@Table(name = "todos")
-data class Todo(
+@Table(name = "users")
+data class User(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long = 0,
 
-    @Column(nullable = false)
-    var title: String,
-
-    @Column(columnDefinition = "TEXT")
-    var description: String? = null,
+    @Column(nullable = false, unique = true)
+    val email: String,
 
     @Column(nullable = false)
-    var isDone: Boolean = false,
+    var password: String,
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    var user: User,
+    @Column(nullable = false, length = 50)
+    var nickname: String,
 
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
@@ -36,9 +31,8 @@ data class Todo(
 ) {
     // JPA에서 사용하는 기본 생성자
     constructor() : this(
-        title = "",
-        description = null,
-        isDone = false,
-        user = User()
+        email = "",
+        password = "",
+        nickname = ""
     )
 }

@@ -1,5 +1,6 @@
 package com.example.todo.controller
 
+import jakarta.servlet.http.HttpSession
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.GetMapping
 
@@ -11,7 +12,12 @@ class HomeController {
      * GET /
      */
     @GetMapping("/")
-    fun home(): String {
-        return "redirect:/todos"
+    fun home(session: HttpSession): String {
+        val loginUser = session.getAttribute("loginUser")
+        return if (loginUser != null) {
+            "redirect:/todos"
+        } else {
+            "redirect:/login"
+        }
     }
 }
