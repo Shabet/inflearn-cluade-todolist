@@ -18,6 +18,7 @@ data class TodoCreateRequestDto(
 }
 
 data class TodoUpdateRequestDto(
+    @field:NotBlank(message = "제목은 필수입니다.")
     val title: String? = null,
     val description: String? = null,
     val isDone: Boolean? = null
