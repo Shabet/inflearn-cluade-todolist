@@ -64,9 +64,13 @@ class TodoService(
         val todo = todoRepository.findByIdOrNull(id)
             ?: throw NoSuchElementException("ID가 $id 인 Todo를 찾을 수 없습니다.")
 
-        // 요청된 필드만 업데이트
-        requestDto.title?.let { todo.title = it.trim() }
-        requestDto.description?.let { todo.description = it.trim() }
+        // 요청된 필드만 업데이트 (null이 아닌 경우에만)
+        requestDto.title?.let { 
+            if (it.isNotBlank()) {
+                todo.title = it.trim() 
+            }
+        }
+        requestDto.description?.let { todo.description = it.trim().ifEmpty { null } }
         requestDto.isDone?.let { todo.isDone = it }
 
         val updatedTodo = todoRepository.save(todo)
